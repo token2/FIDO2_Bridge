@@ -5,6 +5,79 @@ data class AlgorithmInfo(
     val alg: Int?
 )
 
+data class AttestedCredentialData(
+    val aaguid: ByteArray,
+    val credentialId: ByteArray,
+    val credentialPublicKey: Map<*, *>
+) {
+    val publicKeyAlgorithm: Int?
+        get() = (credentialPublicKey[3L] as? Number)?.toInt()
+
+    val keyType: Int?
+        get() = (credentialPublicKey[1L] as? Number)?.toInt()
+
+    val curve: Int?
+        get() = (credentialPublicKey[-1L] as? Number)?.toInt()
+}
+
+data class AuthenticatorData(
+    val rpIdHash: ByteArray,
+    val flags: Int,
+    val signCount: Long,
+    val attestedCredentialData: AttestedCredentialData?
+) {
+    val userPresent: Boolean
+        get() = (flags and CTAP.AUTH_DATA_FLAG_UP) != 0
+
+    val userVerified: Boolean
+        get() = (flags and CTAP.AUTH_DATA_FLAG_UV) != 0
+
+    val hasAttestedCredentialData: Boolean
+        get() = (flags and CTAP.AUTH_DATA_FLAG_AT) != 0
+
+    val hasExtensions: Boolean
+        get() = (flags and CTAP.AUTH_DATA_FLAG_ED) != 0
+
+    companion object {
+        fun parse(data: ByteArray): AuthenticatorData? {
+            if (data.size < 37) return null
+
+            val rpIdHash = data.sliceArray(0 until 32)
+            val flags = data[32].toInt() and 0xFF
+            val signCount = ((data[33].toLong() and 0xFF) shl 24) or
+                    ((data[34].toLong() and 0xFF) shl 16) or
+                    ((data[35].toLong() and 0xFF) shl 8) or
+                    (data[36].toLong() and 0xFF)
+
+            var offset = 37
+            val hasAt = (flags and CTAP.AUTH_DATA_FLAG_AT) != 0
+
+            val attestedCredentialData = if (hasAt) {
+                if (data.size < offset + 18) return null
+
+                val aaguid = data.sliceArray(offset until offset + 16)
+                offset += 16
+
+                val credIdLen = ((data[offset].toInt() and 0xFF) shl 8) or
+                        (data[offset + 1].toInt() and 0xFF)
+                offset += 2
+
+                if (data.size < offset + credIdLen) return null
+                val credentialId = data.sliceArray(offset until offset + credIdLen)
+                offset += credIdLen
+
+                val credentialPublicKey = CborDecoder.decode(
+                    data.sliceArray(offset until data.size)
+                ) as? Map<*, *> ?: return null
+
+                AttestedCredentialData(aaguid, credentialId, credentialPublicKey)
+            } else null
+
+            return AuthenticatorData(rpIdHash, flags, signCount, attestedCredentialData)
+        }
+    }
+}
+
 data class DeviceInfo(
     val versions: List<String> = emptyList(),
     val extensions: List<String> = emptyList(),

@@ -641,8 +641,9 @@ class CredentialProviderActivity : AppCompatActivity() {
             makeCredResult.authData
         )
 
-        // Extract credential ID from authData
-        val credentialId = extractCredentialIdFromAuthData(makeCredResult.authData)
+        // Parse authData structure
+        val authData = AuthenticatorData.parse(makeCredResult.authData)
+        val credentialId = authData?.attestedCredentialData?.credentialId ?: ByteArray(0)
 
         // Check if credProps extension was requested
         val extensions = requestJson.optJSONObject("extensions")
@@ -676,14 +677,16 @@ class CredentialProviderActivity : AppCompatActivity() {
                     makeCredResult.authData,
                     Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
                 ))
-                extractPublicKeyAlgorithm(makeCredResult.authData)?.let { alg ->
-                    put("publicKeyAlgorithm", alg)
-                }
-                extractPublicKeySpki(makeCredResult.authData)?.let { spki ->
-                    put("publicKey", Base64.encodeToString(
-                        spki,
-                        Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
-                    ))
+                authData?.attestedCredentialData?.let { attCredData ->
+                    attCredData.publicKeyAlgorithm?.let { alg ->
+                        put("publicKeyAlgorithm", alg)
+                    }
+                    encodePublicKeySpki(attCredData)?.let { spki ->
+                        put("publicKey", Base64.encodeToString(
+                            spki,
+                            Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP
+                        ))
+                    }
                 }
             })
             put("clientExtensionResults", JSONObject().apply {
@@ -980,61 +983,16 @@ class CredentialProviderActivity : AppCompatActivity() {
         return output
     }
 
-    private fun extractCredentialIdFromAuthData(authData: ByteArray): ByteArray {
-        // authData structure:
-        // rpIdHash (32 bytes) + flags (1 byte) + signCount (4 bytes) + attestedCredentialData
-        // attestedCredentialData: aaguid (16 bytes) + credentialIdLength (2 bytes) + credentialId + publicKey
-
-        if (authData.size < 55) {
-            return ByteArray(0)
-        }
-
-        val flags = authData[32].toInt() and 0xFF
-        val hasAttestedCredData = (flags and CTAP.AUTH_DATA_FLAG_AT) != 0
-
-        if (!hasAttestedCredData) {
-            return ByteArray(0)
-        }
-
-        // Skip rpIdHash (32) + flags (1) + signCount (4) + aaguid (16)
-        val credIdLengthOffset = 32 + 1 + 4 + 16
-        val credIdLength = ((authData[credIdLengthOffset].toInt() and 0xFF) shl 8) or
-                (authData[credIdLengthOffset + 1].toInt() and 0xFF)
-
-        val credIdOffset = credIdLengthOffset + 2
-        return authData.sliceArray(credIdOffset until credIdOffset + credIdLength)
-    }
-
-    private fun extractPublicKeyAlgorithm(authData: ByteArray): Int? {
-        val coseKey = extractCoseKeyFromAuthData(authData) ?: return null
-        return (coseKey[3L] as? Number)?.toInt()
-    }
-
-    private fun extractPublicKeySpki(authData: ByteArray): ByteArray? {
-        val coseKey = extractCoseKeyFromAuthData(authData) ?: return null
-
-        val kty = (coseKey[1L] as? Number)?.toInt() ?: return null
-        val crv = (coseKey[-1L] as? Number)?.toInt() ?: return null
+    private fun encodePublicKeySpki(attCredData: AttestedCredentialData): ByteArray? {
+        val kty = attCredData.keyType ?: return null
+        val crv = attCredData.curve ?: return null
+        val coseKey = attCredData.credentialPublicKey
 
         return when (kty) {
             CTAP.COSE_KTY_EC2 -> encodeEc2KeyAsSpki(coseKey, crv)
             CTAP.COSE_KTY_OKP -> encodeOkpKeyAsSpki(coseKey, crv)
             else -> null
         }
-    }
-
-    private fun extractCoseKeyFromAuthData(authData: ByteArray): Map<*, *>? {
-        if (authData.size < 55) return null
-
-        val flags = authData[32].toInt() and 0xFF
-        if ((flags and CTAP.AUTH_DATA_FLAG_AT) == 0) return null
-
-        val credIdLenOffset = 32 + 1 + 4 + 16
-        val credIdLen = ((authData[credIdLenOffset].toInt() and 0xFF) shl 8) or
-                (authData[credIdLenOffset + 1].toInt() and 0xFF)
-
-        val coseKeyOffset = credIdLenOffset + 2 + credIdLen
-        return CborDecoder.decode(authData.sliceArray(coseKeyOffset until authData.size)) as? Map<*, *>
     }
 
     private fun encodeEc2KeyAsSpki(coseKey: Map<*, *>, crv: Int): ByteArray? {
