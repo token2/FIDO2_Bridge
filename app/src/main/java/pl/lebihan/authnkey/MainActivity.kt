@@ -504,7 +504,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 resultText.text = getString(R.string.verifying_pin)
-                val authenticated = withContext(Dispatchers.IO) { protocol.getPinToken(pin) }
+                val authenticated = withContext(Dispatchers.IO) {
+                    if (usePreviewCommand) protocol.getPinToken(pin)
+                    else protocol.getPinToken(pin, PinProtocol.PERMISSION_CM)
+                }
                 if (!authenticated) {
                     if (isNfcDisconnected()) {
                         showNfcReconnectDialog()
