@@ -121,7 +121,7 @@ object FidoCommands {
     fun parseMakeCredentialResponse(response: ByteArray): Result<MakeCredentialResponse> {
         val error = CTAP.getResponseError(response)
         if (error != null) {
-            return Result.failure(Exception(error.name))
+            return Result.failure(CTAP.Exception(error))
         }
 
         return try {
@@ -168,7 +168,7 @@ object FidoCommands {
     fun parseGetAssertionResponse(response: ByteArray): Result<GetAssertionResponse> {
         val error = CTAP.getResponseError(response)
         if (error != null) {
-            return Result.failure(Exception(error.name))
+            return Result.failure(CTAP.Exception(error))
         }
 
         return try {

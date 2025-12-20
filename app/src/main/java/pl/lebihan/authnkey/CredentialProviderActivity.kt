@@ -481,14 +481,10 @@ class CredentialProviderActivity : AppCompatActivity() {
         scope.launch {
             try {
                 executeRequest(json, null)
-            } catch (e: Exception) {
+            } catch (e: CTAP.Exception) {
                 // Check if authenticator requires PIN despite UV=discouraged
-                val errorMsg = e.message ?: ""
-                if (errorMsg.contains("PIN_REQUIRED") ||
-                    errorMsg.contains("PIN_AUTH_INVALID") ||
-                    errorMsg.contains("0x36") ||  // CTAP2_ERR_PUAT_REQUIRED
-                    errorMsg.contains("0x44")) {  // CTAP2_ERR_PIN_REQUIRED
-                    // Authenticator requires PIN, ask user
+                if (e.error == CTAP.Error.PIN_REQUIRED ||
+                    e.error == CTAP.Error.PIN_AUTH_INVALID) {
                     Log.d(TAG, "Authenticator requires PIN despite UV=discouraged")
                     val protocol = pinProtocol ?: throw Exception("No PIN protocol")
                     val retries = withContext(Dispatchers.IO) { protocol.getPinRetries() } ?: 8

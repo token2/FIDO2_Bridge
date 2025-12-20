@@ -55,7 +55,7 @@ class CredentialManagement(
 
             val error = CTAP.getResponseError(response)
             if (error != null) {
-                return Result.failure(Exception(error.name))
+                return Result.failure(CTAP.Exception(error))
             }
 
             val data = response.drop(1).toByteArray()
@@ -88,7 +88,7 @@ class CredentialManagement(
                 if (error == CTAP.Error.NO_CREDENTIALS) {
                     return Result.success(emptyList())
                 }
-                return Result.failure(Exception(error.name))
+                return Result.failure(CTAP.Exception(error))
             }
 
             val firstRp = parseRelyingPartyResponse(beginResponse)
@@ -133,7 +133,7 @@ class CredentialManagement(
                 if (error == CTAP.Error.NO_CREDENTIALS) {
                     return Result.success(emptyList())
                 }
-                return Result.failure(Exception(error.name))
+                return Result.failure(CTAP.Exception(error))
             }
 
             val firstCred = parseCredentialResponse(beginResponse)
@@ -172,7 +172,7 @@ class CredentialManagement(
 
             val error = CTAP.getResponseError(response)
             if (error != null) {
-                return Result.failure(Exception(error.name))
+                return Result.failure(CTAP.Exception(error))
             }
 
             return Result.success(Unit)

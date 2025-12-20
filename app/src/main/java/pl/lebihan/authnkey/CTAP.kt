@@ -191,6 +191,8 @@ object CTAP {
         }
     }
 
+    class Exception(val error: Error) : kotlin.Exception(error.name)
+
     fun getErrorName(code: Byte): String {
         val intCode = code.toInt() and 0xFF
         return Error.fromCode(intCode)?.name ?: "UNKNOWN_ERROR (0x${String.format("%02X", code)})"
