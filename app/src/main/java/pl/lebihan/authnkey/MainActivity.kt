@@ -19,13 +19,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.edit
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
@@ -457,27 +460,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showPinDialogForCredentials(retries: Int, usePreviewCommand: Boolean) {
-        val editText = EditText(this).apply {
-            hint = getString(R.string.pin_hint)
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or
-                    android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-            setPadding(48, 32, 48, 32)
-        }
+        val dialogView = layoutInflater.inflate(R.layout.dialog_pin_entry, null)
+        val pinInputField = dialogView.findViewById<PinInputField>(R.id.pinInputField)
 
-        AlertDialog.Builder(this)
+        pinInputField.useNumericKeyboard = getKeyboardPreference()
+        pinInputField.onKeyboardModeChanged = { saveKeyboardPreference(it) }
+
+        val dialog = MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.pin_required_title))
             .setMessage(getString(R.string.pin_required_message, retries))
-            .setView(editText)
-            .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                val pin = editText.text.toString()
-                if (pin.length >= 4) {
+            .setView(dialogView)
+            .setPositiveButton(getString(R.string.ok), null)
+            .setNegativeButton(getString(R.string.cancel), null)
+            .create()
+
+        dialog.setOnShowListener {
+            pinInputField.requestFocus()
+            dialog.window?.let { window ->
+                WindowCompat.getInsetsController(window, pinInputField)?.show(WindowInsetsCompat.Type.ime())
+            }
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                pinInputField.validateAndGetPin()?.let { pin ->
+                    dialog.dismiss()
                     authenticateAndListCredentials(pin, usePreviewCommand)
-                } else {
-                    resultText.text = getString(R.string.error_pin_min_length)
                 }
             }
-            .setNegativeButton(getString(R.string.cancel), null)
-            .show()
+        }
+
+        dialog.show()
     }
 
     private fun authenticateAndListCredentials(pin: String, usePreviewCommand: Boolean) {
@@ -623,10 +633,15 @@ class MainActivity : AppCompatActivity() {
 
                 val retries = withContext(Dispatchers.IO) { protocol.getPinRetries() }.getOrNull()
 
-                val dialogView = layoutInflater.inflate(R.layout.dialog_pin, null)
-                val currentPinEdit = dialogView.findViewById<EditText>(R.id.currentPin)
-                val newPinEdit = dialogView.findViewById<EditText>(R.id.newPin)
-                val confirmPinEdit = dialogView.findViewById<EditText>(R.id.confirmPin)
+                val dialogView = layoutInflater.inflate(R.layout.dialog_pin_change, null)
+                val currentPinField = dialogView.findViewById<PinInputField>(R.id.currentPin)
+                val newPinField = dialogView.findViewById<PinInputField>(R.id.newPin)
+                val confirmPinField = dialogView.findViewById<PinInputField>(R.id.confirmPin)
+
+                val useNumeric = getKeyboardPreference()
+                listOf(currentPinField, newPinField, confirmPinField).forEach { field ->
+                    field.useNumericKeyboard = useNumeric
+                }
 
                 val message = if (retries != null) {
                     getString(R.string.pin_retries_status, retries)
@@ -636,30 +651,42 @@ class MainActivity : AppCompatActivity() {
 
                 pendingAction = null
 
-                AlertDialog.Builder(this@MainActivity)
+                val dialog = MaterialAlertDialogBuilder(this@MainActivity)
                     .setTitle(getString(R.string.change_pin_title))
                     .setMessage(message)
                     .setView(dialogView)
-                    .setPositiveButton(getString(R.string.change)) { _, _ ->
-                        val currentPin = currentPinEdit.text.toString()
-                        val newPin = newPinEdit.text.toString()
-                        val confirmPin = confirmPinEdit.text.toString()
-
-                        if (newPin != confirmPin) {
-                            resultText.text = getString(R.string.error_pins_dont_match)
-                            return@setPositiveButton
-                        }
-
-                        if (newPin.length < 4) {
-                            resultText.text = getString(R.string.error_pin_min_length)
-                            return@setPositiveButton
-                        }
-
-                        changePin(currentPin, newPin)
-                    }
+                    .setPositiveButton(getString(R.string.change), null)
                     .setNegativeButton(getString(R.string.cancel), null)
-                    .show()
+                    .create()
 
+                dialog.setOnShowListener {
+                    currentPinField.requestFocus()
+                    dialog.window?.let { window ->
+                        WindowCompat.getInsetsController(window, currentPinField)?.show(WindowInsetsCompat.Type.ime())
+                    }
+                    dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                        val currentPin = currentPinField.pin ?: ""
+                        val newPin = newPinField.pin ?: ""
+                        val confirmPin = confirmPinField.pin ?: ""
+
+                        confirmPinField.error = null
+
+                        when {
+                            newPin != confirmPin -> {
+                                confirmPinField.error = getString(R.string.error_pins_dont_match)
+                            }
+                            !newPinField.validate() -> {
+                                // error already set by validate()
+                            }
+                            else -> {
+                                dialog.dismiss()
+                                changePin(currentPin, newPin)
+                            }
+                        }
+                    }
+                }
+
+                dialog.show()
                 resultText.text = ""
 
             } catch (e: Exception) {
@@ -775,8 +802,19 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
+    private fun getKeyboardPreference(): Boolean =
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            .getBoolean(PREF_USE_NUMERIC_KEYBOARD, true)
+
+    private fun saveKeyboardPreference(numeric: Boolean) {
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            .edit { putBoolean(PREF_USE_NUMERIC_KEYBOARD, numeric) }
+    }
+
     companion object {
         private const val ACTION_USB_PERMISSION = "pl.lebihan.authnkey.USB_PERMISSION"
+        private const val PREFS_NAME = "authnkey_prefs"
+        private const val PREF_USE_NUMERIC_KEYBOARD = "use_numeric_keyboard"
     }
 }
 
