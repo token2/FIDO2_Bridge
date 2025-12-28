@@ -7,15 +7,10 @@ L’application s’enregistre comme fournisseur d’identifiants ; ainsi, toute
 Cela fonctionne également sur les appareils sans Google Play Services, puisque Authnkey implémente directement le protocole CTAP2 au lieu de s’appuyer sur l’API FIDO2 de Google.
 
 Fonctionnalités prises en charge :
-
-	Création et authentification par passkey
-
-	Vérification du PIN
-
-	Identifiants détectables
-
-	Plusieurs comptes par site
-
-	Transports NFC et USB	
+- Création et authentification par passkey
+- Vérification du PIN
+- Identifiants détectables
+- Plusieurs comptes par site
+- Transports NFC et USB
 
 Aucun accès root requis.

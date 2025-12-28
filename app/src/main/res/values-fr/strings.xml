@@ -14,6 +14,8 @@
     <string name="sign_in">Se connecter</string>
     <string name="cancel">Annuler</string>
     <string name="close">Fermer</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
 
     <!-- Instructions -->
     <string name="instruction_connect_key">Tenez votre clé de sécurité contre l\'arrière de votre téléphone, ou branchez-la via USB</string>
@@ -118,6 +120,10 @@
     <string name="checking_pin_status">Vérification de l\'état du code PIN…</string>
     <string name="pin_retries_status">Tentatives de code PIN restantes : %1$d</string>
     <string name="change_pin_title">Modifier le code PIN</string>
+    <string name="set_pin_title">Définir le code PIN</string>
+    <string name="set">Définir</string>
+    <string name="setting_pin">Définition du code PIN…</string>
+    <string name="no_pin_set_message">Aucun code PIN n\'est défini sur cet authentificateur</string>
     <string name="change">Modifier</string>
     <string name="initializing_pin_protocol">Initialisation du protocole PIN…</string>
     <string name="changing_pin">Modification du code PIN…</string>
@@ -137,6 +143,15 @@
 
     <string name="pin_not_set_title">Aucun code PIN défini</string>
     <string name="pin_not_set_message">Votre authentificateur n\'a pas de code PIN défini.\n\nUtilisez « Définir le code PIN » au lieu de « Modifier le code PIN ».</string>
+
+    <string name="pin_set_success_title">Code PIN défini avec succès</string>
+    <string name="pin_set_success_message">Le code PIN de votre authentificateur a été défini.\nVeuillez utiliser ce code PIN pour les opérations futures.</string>
+
+    <string name="pin_already_set_title">Code PIN déjà défini</string>
+    <string name="pin_already_set_message">Un code PIN est déjà configuré sur cet authentificateur.</string>
+
+    <string name="pin_set_failed_title">Échec de la définition du code PIN</string>
+    <string name="pin_set_failed_message">Erreur : %1$s\n\nVeuillez réessayer ou consulter la documentation de votre authentificateur.</string>
 
     <string name="pin_change_failed_title">Impossible de modifier le code PIN</string>
     <string name="pin_change_failed_message">Erreur : %1$s\n\nVeuillez réessayer ou consulter la documentation de votre authentificateur.</string>
@@ -177,6 +192,43 @@
     <string name="device_info_algorithm_item">  Type : %1$s, Algorithme : %2$s</string>
     <string name="device_info_min_pin_length">Longueur minimale du code PIN : %1$d</string>
     <string name="device_info_firmware">Version du micrologiciel : %1$d</string>
+
+    <!-- Device Info Dialog Sections -->
+    <string name="device_info_section_versions">Versions</string>
+    <string name="device_info_section_extensions">Extensions</string>
+    <string name="device_info_section_aaguid">AAGUID</string>
+    <string name="device_info_section_options">Options</string>
+    <string name="device_info_section_interfaces">Interfaces prises en charge</string>
+    <string name="device_info_section_algorithms">Algorithmes pris en charge</string>
+    <string name="device_info_section_limits">Limites</string>
+    <string name="device_info_dialog_title">État du périphérique</string>
+
+    <!-- Device Info Option Names -->
+    <string name="device_info_option_rk">Clés résidentes</string>
+    <string name="device_info_option_up">Présence utilisateur</string>
+    <string name="device_info_option_uv">Vérification utilisateur</string>
+    <string name="device_info_option_plat">Authentificateur de plateforme</string>
+    <string name="device_info_option_clientPin">Code PIN client</string>
+    <string name="device_info_option_credMgmt">Gestion des identifiants</string>
+    <string name="device_info_option_credentialMgmtPreview">Gestion des identifiants (Aperçu)</string>
+    <string name="device_info_option_largeBlobs">Blobs volumineux</string>
+    <string name="device_info_option_pinUvAuthToken">Jeton d\'authentification PIN/UV</string>
+    <string name="device_info_option_authnrCfg">Configuration de l\'authentificateur</string>
+    <string name="device_info_option_setMinPINLength">Définir la longueur minimale du PIN</string>
+    <string name="device_info_option_makeCredUvNotRqd">Création d\'identifiant sans UV</string>
+    <string name="device_info_option_alwaysUv">Toujours exiger UV</string>
+    <string name="device_info_option_ep">Attestation d\'entreprise</string>
+    <string name="device_info_option_bioEnroll">Inscription biométrique</string>
+    <string name="device_info_option_userVerificationMgmtPreview">Gestion de la vérification utilisateur (Aperçu)</string>
+    <string name="device_info_option_noMcGaPermissionsWithClientPin">Pas de permissions MC/GA avec PIN client</string>
+
+    <!-- Device Info Limit Labels -->
+    <string name="device_info_limit_max_msg_size">Taille maximale du message</string>
+    <string name="device_info_limit_max_creds_in_list">Nombre maximal d\'identifiants dans la liste</string>
+    <string name="device_info_limit_max_cred_id_length">Longueur maximale de l\'ID d\'identifiant</string>
+    <string name="device_info_limit_min_pin_length">Longueur minimale du code PIN</string>
+    <string name="device_info_limit_pin_protocols">Protocoles d\'authentification PIN/UV</string>
+    <string name="device_info_limit_firmware">Version du micrologiciel</string>
 
     <string name="choose_account">Choisir un compte</string>
     <string name="unknown_account">Compte inconnu</string>
