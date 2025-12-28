@@ -39,6 +39,14 @@ Additionally, Android's FIDO2 support depends on Google Play Services. Authnkey 
 ./gradlew assembleDebug
 ```
 
+## Translations
+
+Authnkey is available in multiple languages thanks to contributors. If you'd like to add or improve a translation, you are welcome to do so on [Toolate](https://toolate.othing.xyz/projects/authnkey/).
+
+<a href="https://toolate.othing.xyz/projects/authnkey/">
+<img src="https://toolate.othing.xyz/widget/authnkey/multi-auto.svg" alt="Translation status" />
+</a>
+
 ## License
 
 MIT
