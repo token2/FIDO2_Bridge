@@ -459,13 +459,17 @@ class CredentialProviderActivity : AppCompatActivity() {
                     userVerification == UserVerification.REQUIRED && !deviceHasPin -> {
                         throw AuthnkeyError.UserVerificationRequiredNoPin()
                     }
+                    // alwaysUv but device has no PIN - fail
+                    alwaysUv && !deviceHasPin -> {
+                        throw AuthnkeyError.UserVerificationRequiredNoPin()
+                    }
                     // UV required/preferred and device has PIN - need to get PIN
                     userVerification != UserVerification.DISCOURAGED && deviceHasPin -> {
                         val retries = withContext(Dispatchers.IO) { protocol.getPinRetries() }.getOrDefault(8)
                         showPinDialog(retries, json)
                     }
                     // UV discouraged but device has alwaysUv - need PIN anyway
-                    userVerification == UserVerification.DISCOURAGED && alwaysUv && deviceHasPin -> {
+                    userVerification == UserVerification.DISCOURAGED && alwaysUv -> {
                         val retries = withContext(Dispatchers.IO) { protocol.getPinRetries() }.getOrDefault(8)
                         showPinDialog(retries, json)
                     }
