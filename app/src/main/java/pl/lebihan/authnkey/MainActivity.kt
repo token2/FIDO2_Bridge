@@ -185,6 +185,9 @@ class MainActivity : AppCompatActivity() {
             registerReceiver(usbAttachReceiver, usbAttachFilter)
         }
 
+        // Auto-connect to already-plugged USB FIDO devices
+        checkForUsbDevice()
+
         // Check if started by USB device attachment
         if (intent.action == UsbManager.ACTION_USB_DEVICE_ATTACHED) {
             val device = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -308,6 +311,30 @@ class MainActivity : AppCompatActivity() {
 
         // Show device selection dialog
         showDeviceSelectionDialog(devices)
+    }
+
+    /**
+     * Check for already-plugged USB FIDO devices and connect if found.
+     * Only connects if there's exactly one device and we're not already connected.
+     */
+    private fun checkForUsbDevice() {
+        // Skip if already connected
+        if (currentTransport?.isConnected == true) {
+            return
+        }
+
+        val devices = usbManager.deviceList.values
+            .filter { UsbTransport.isFidoDevice(it) }
+
+        // Only auto-connect if exactly one FIDO device is found
+        if (devices.size == 1) {
+            val device = devices.first()
+            if (usbManager.hasPermission(device)) {
+                connectToUsbDevice(device)
+            } else {
+                requestUsbPermission(device)
+            }
+        }
     }
 
     private fun showDeviceSelectionDialog(devices: Collection<UsbDevice>) {
