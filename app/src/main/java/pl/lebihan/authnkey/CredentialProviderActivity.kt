@@ -53,6 +53,8 @@ class CredentialProviderActivity : AppCompatActivity() {
     private var pendingPin: String? = null  // PIN entered before key connection
     private var userVerification: UserVerification = UserVerification.PREFERRED
 
+    private var usbPermissionRequested = false
+
     private enum class UserVerification {
         REQUIRED,
         PREFERRED,
@@ -108,6 +110,8 @@ class CredentialProviderActivity : AppCompatActivity() {
     private val usbAttachReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             if (intent.action == UsbManager.ACTION_USB_DEVICE_ATTACHED) {
+                usbPermissionRequested = false
+
                 val device = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     intent.getParcelableExtra(UsbManager.EXTRA_DEVICE, UsbDevice::class.java)
                 } else {
@@ -342,13 +346,15 @@ class CredentialProviderActivity : AppCompatActivity() {
             val device = devices.first()
             if (usbManager.hasPermission(device)) {
                 connectToUsbDevice(device)
-            } else {
+            } else if (!usbPermissionRequested) {
                 requestUsbPermission(device)
             }
         }
     }
 
     private fun requestUsbPermission(device: UsbDevice) {
+        usbPermissionRequested = true
+
         val intent = Intent(ACTION_USB_PERMISSION).apply {
             setPackage(packageName)
         }
