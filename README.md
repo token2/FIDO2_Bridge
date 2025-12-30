@@ -47,6 +47,8 @@ Authnkey is available in multiple languages thanks to contributors. If you'd lik
 <img src="https://toolate.othing.xyz/widget/authnkey/multi-auto.svg" alt="Translation status" />
 </a>
 
+**Note:** Due to the way Toolate handles synchronization with the repository, translations may occasionally disappear after updates. If this happens, your previous translations can be found under the *Automatic suggestions* tab for each string, or you can re-upload them from a previous commit via the Files tab in the app component.
+
 ## License
 
 MIT
