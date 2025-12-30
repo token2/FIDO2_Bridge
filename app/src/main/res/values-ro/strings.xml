@@ -29,7 +29,7 @@
     <string name="pin_hint_new">PIN Nou</string>
     <string name="pin_hint_confirm">Confirmă noul cod PIN</string>
     <string name="pin_continue">Continuați</string>
-    <string name="pin_too_short">PIN-ul trebuie să aibă cel puțin 4 caractere</string>
+    <string name="pin_too_short">PIN-ul trebuie să aibă cel puțin %1$d caractere</string>
     <string name="pin_retries_remaining">Introduceți codul PIN (mai aveți %1$d încercări disponibile)</string>
     <string name="pin_incorrect_retries">PIN incorect. Mai rămân %1$d încercări rămase</string>
     <string name="error_format">%1$s\n\nÎncercați din nou sau anulați</string>
@@ -39,7 +39,6 @@
     <string name="error_generic">Eroare: %1$s</string>
     <string name="error_generic_with_trace">Eroare: %1$s\n\n%2$s</string>
     <string name="error_metadata">Eroare la obținerea metadatelor: %1$s</string>
-    <string name="error_could_not_get_pin_status">Nu s-a putut obține starea codului PIN</string>
     <string name="error_pins_dont_match">Noile coduri PIN nu se potrivesc</string>
     <string name="error_uv_required_no_pin">Verificarea este necesară, dar nu este setat niciun cod PIN pe cheia de securitate</string>
     <string name="error_tag_lost">S-a pierdut conexiunea cu cheia de securitate</string>
@@ -216,4 +215,5 @@
     <string name="device_info_limit_min_pin_length">Lungime minimă PIN</string>
     <string name="device_info_limit_pin_protocols">Protocoale de autentificare PIN/UV</string>
     <string name="device_info_limit_firmware">Versiune firmware</string>
+    <string name="provider_not_supported">Managerul de credenţiale nu este acceptat pe acest dispozitiv</string>
 </resources>
