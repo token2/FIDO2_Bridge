@@ -287,11 +287,11 @@ class MainActivity : AppCompatActivity() {
                     if (action != null) {
                         action()
                     } else {
-                        statusText.text = getString(R.string.nfc_connected)
+                        statusText.text = getString(R.string.security_key_detected)
                         resultText.text = ""
                     }
                 } else {
-                    statusText.text = getString(R.string.nfc_connected)
+                    statusText.text = getString(R.string.security_key_detected)
                 }
 
             } catch (e: Exception) {
@@ -411,7 +411,7 @@ class MainActivity : AppCompatActivity() {
                 credentialManagement = null
 
                 updateConnectionStatus()
-                statusText.text = getString(R.string.usb_connected)
+                statusText.text = getString(R.string.security_key_detected)
 
             } catch (e: Exception) {
                 statusText.text = getString(R.string.usb_error, e.toUserMessage(this@MainActivity))
@@ -425,7 +425,11 @@ class MainActivity : AppCompatActivity() {
         val connected = transport?.isConnected == true
 
         connectionType.text = if (connected) {
-            getString(R.string.connected_via, transport?.transportType?.name ?: "")
+            when (transport?.transportType) {
+                TransportType.NFC -> getString(R.string.using_nfc)
+                TransportType.USB -> getString(R.string.using_usb)
+                else -> ""
+            }
         } else {
             getString(R.string.not_connected)
         }

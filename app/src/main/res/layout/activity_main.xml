@@ -41,6 +41,7 @@
         android:id="@+id/statusText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minLines="2"
         android:text="@string/waiting_for_key"
         android:textSize="16sp"
         android:gravity="center"

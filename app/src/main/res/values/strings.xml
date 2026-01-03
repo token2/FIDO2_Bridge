@@ -86,8 +86,7 @@
 
     <!-- MainActivity (Debug) -->
     <string name="usb_permission_denied">USB permission denied</string>
-    <string name="nfc_connected">Security key connected via NFC!</string>
-    <string name="usb_connected">Security key connected via USB!</string>
+    <string name="security_key_detected">Security key detected</string>
     <string name="nfc_error">NFC Error: %1$s</string>
     <string name="usb_error">USB Error: %1$s</string>
     <string name="no_devices_title">No Devices Found</string>
@@ -95,7 +94,8 @@
     <string name="ok">OK</string>
     <string name="select_security_key">Select Security Key</string>
     <string name="connecting_usb">Connecting to USB device…</string>
-    <string name="connected_via">Connected via %1$s</string>
+    <string name="using_nfc">Using NFC</string>
+    <string name="using_usb">Using USB</string>
     <string name="not_connected">Not connected</string>
     <string name="waiting_for_key">Hold your security key against the back of your phone, or plug it in via USB</string>
     <string name="connection_lost">Connection lost</string>
